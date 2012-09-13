@@ -29,10 +29,6 @@ package org.spout.api.material;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spout.api.collision.BoundingBox;
-import org.spout.api.collision.CollisionModel;
-import org.spout.api.collision.CollisionStrategy;
-import org.spout.api.collision.CollisionVolume;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
 import org.spout.api.geo.cuboid.Block;
@@ -112,7 +108,6 @@ public class BlockMaterial extends Material implements Placeable {
 	private float hardness = 0F;
 	private float friction = 0F;
 	private byte opacity = 0xF;
-	private final CollisionModel collision = new CollisionModel(new BoundingBox(0F, 0F, 0F, 1F, 1F, 1F));
 
 	@Override
 	public BlockMaterial getSubMaterial(short data) {
@@ -347,44 +342,6 @@ public class BlockMaterial extends Material implements Placeable {
 	}
 
 	/**
-	 * Gets the bounding box area of this material
-	 * 
-	 * @return area
-	 */
-	public CollisionVolume getBoundingArea() {
-		return this.collision.getVolume();
-	}
-	
-	/**
-	 * Gets the collision model associated with this block material
-	 * 
-	 * @return the collision model
-	 */
-	public CollisionModel getCollisionModel() {
-		return this.collision;
-	}
-		
-	/**
-	 * True if this block has collision,
-	 * false if not.
-	 * 
-	 * @return if this block has collision
-	 */
-	public boolean hasCollision() {
-		return this.collision.getStrategy() != CollisionStrategy.NOCOLLIDE;
-	}
-	
-	/**
-	 * True if this block is a solid block
-	 * false if not.
-	 * 
-	 * @return if this block has collision
-	 */
-	public boolean isSolid() {
-		return this.collision.getStrategy() == CollisionStrategy.SOLID;
-	}
-
-	/**
 	 * Gets the occluded faces of this Block Material for the data value specified<br>
 	 * Occluded faces do not let light though and require rendering behind it at those faces
 	 * 
@@ -418,17 +375,6 @@ public class BlockMaterial extends Material implements Placeable {
 	 */
 	public BlockMaterial setOcclusion(short data, BlockFace face) {
 		this.getOcclusion(data).set(face);
-		return this;
-	}
-
-	/**
-	 * Sets the collision strategy to use for this block
-	 * 
-	 * @param strategy
-	 * @return this block material
-	 */
-	public BlockMaterial setCollision(CollisionStrategy strategy) {
-		this.collision.setStrategy(strategy);
 		return this;
 	}
 
