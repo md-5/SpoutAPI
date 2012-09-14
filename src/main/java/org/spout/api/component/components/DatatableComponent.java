@@ -31,14 +31,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.spout.api.component.Component;
+import org.spout.api.component.BaseComponent;
 import org.spout.api.datatable.DataMap;
 import org.spout.api.datatable.DatatableMap;
 import org.spout.api.datatable.GenericDatatableMap;
 import org.spout.api.map.DefaultedKey;
 import org.spout.api.map.DefaultedMap;
 
-public final class DatatableComponent extends Component implements DefaultedMap<String, Serializable>{
+public final class DatatableComponent extends BaseComponent implements DefaultedMap<String, Serializable>{
 	private final DataMap dataMap;
 
 	public DatatableComponent() {

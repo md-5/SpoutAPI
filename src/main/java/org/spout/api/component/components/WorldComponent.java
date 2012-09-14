@@ -26,11 +26,11 @@
  */
 package org.spout.api.component.components;
 
-import org.spout.api.component.Component;
+import org.spout.api.component.BaseComponent;
 import org.spout.api.component.ComponentHolder;
 import org.spout.api.component.WorldComponentHolder;
 
-public class WorldComponent extends Component {
+public class WorldComponent extends BaseComponent {
 	public WorldComponent() {
 	}
 

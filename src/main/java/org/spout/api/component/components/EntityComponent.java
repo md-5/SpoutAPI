@@ -27,7 +27,7 @@
 package org.spout.api.component.components;
 
 import org.spout.api.Source;
-import org.spout.api.component.Component;
+import org.spout.api.component.BaseComponent;
 import org.spout.api.component.ComponentHolder;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
@@ -35,7 +35,7 @@ import org.spout.api.event.player.PlayerInteractEvent.Action;
 /**
  * Represents an attachment to a entity that can respond to Ticks.
  */
-public abstract class EntityComponent extends Component {
+public abstract class EntityComponent extends BaseComponent {
 	@Override
 	public Entity getHolder() {
 		return (Entity) super.getHolder();

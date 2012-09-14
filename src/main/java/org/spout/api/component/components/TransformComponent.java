@@ -26,90 +26,39 @@
  */
 package org.spout.api.component.components;
 
+import org.spout.api.component.Component;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
-import org.spout.api.math.MathHelper;
 import org.spout.api.math.Quaternion;
 import org.spout.api.math.Vector3;
 
-public class TransformComponent extends EntityComponent {
-	private final Transform transform = new Transform();
-	private final Transform transformLive = new Transform();
-	private boolean isDirty;
+public interface TransformComponent extends Component {
 
-	@Override
-	public boolean isDetachable() {
-		return false;
-	}
+	public void setTransform(Transform transform);
 
-	@Override
-	public void onTick(float dt) {
-		if (transform.equals(transformLive)) {
-			isDirty = true;
-		} else {
-			isDirty = false;
-		}
-	}
+	public Transform getTransform();
 
-	public void setTransform(Transform transform) {
-		transformLive.set(transform);
-	}
+	public Transform getTransformLive();
 
-	public Transform getTransform() {
-		return transform.copy();
-	}
+	public boolean isDirty();
 
-	public Transform getTransformLive() {
-		return transformLive.copy();
-	}
+	public Point getPosition();
 
-	public boolean isDirty() {
-		return isDirty;
-	}
+	public void setPosition(Point position);
 
-	public Point getPosition() {
-		return transform.getPosition();
-	}
+	public Quaternion getRotation();
 
-	public void setPosition(Point position) {
-		if (position == null) {
-			getHolder().remove();
-			return;
-		}
-		transform.setPosition(position);
-	}
+	public void setRotation(Quaternion rotation);
 
-	public Quaternion getRotation() {
-		return transform.getRotation();
-	}
+	public Vector3 getScale();
 
-	public void setRotation(Quaternion rotation) {
-		if (rotation == null) {
-			getHolder().remove();
-			return;
-		}
-		transform.setRotation(rotation);
-	}
-
-	public Vector3 getScale() {
-		return transform.getScale();
-	}
-
-	public void setScale(Vector3 scale) {
-		if (scale == null) {
-			getHolder().remove();
-			return;
-		}
-		transform.setScale(scale);
-	}
+	public void setScale(Vector3 scale);
 
 	/**
 	 * Moves the entity by the provided vector<br/>
 	 * @param amount to move the entity
 	 */
-	public void translate(Vector3 amount) {
-		transform.getPosition().add(amount);
-	}
+	public void translate(Vector3 amount);
 
 	/**
 	 * Moves the entity by the provided vector
@@ -117,9 +66,7 @@ public class TransformComponent extends EntityComponent {
 	 * @param y offset
 	 * @param z offset
 	 */
-	public void translate(float x, float y, float z) {
-		transform.setPosition(transform.getPosition().add(x, y, z));
-	}
+	public void translate(float x, float y, float z);
 
 	/**
 	 * Rotates the entity about the provided axis by the provided angle
@@ -128,25 +75,18 @@ public class TransformComponent extends EntityComponent {
 	 * @param y
 	 * @param z
 	 */
-	public void rotate(float w, float x, float y, float z) {
-		transform.setRotation(transform.getRotation().rotate(w, x, y, z));
-	}
-
+	public void rotate(float w, float x, float y, float z);
 	/**
 	 * Rotates the entity by the provided rotation
 	 * @param rot
 	 */
-	public void rotate(Quaternion rot) {
-		transform.setRotation(transform.getRotation().multiply(rot));
-	}
+	public void rotate(Quaternion rot);
 
 	/**
 	 * Scales the entity by the provided amount
 	 * @param amount
 	 */
-	public void scale(Vector3 amount) {
-		transform.setScale(transform.getScale().multiply(amount));
-	}
+	public void scale(Vector3 amount);
 
 	/**
 	 * Scales the entity by the provided amount
@@ -154,87 +94,58 @@ public class TransformComponent extends EntityComponent {
 	 * @param y
 	 * @param z
 	 */
-	public void scale(float x, float y, float z) {
-		transform.setScale(transform.getScale().multiply(x, y, z));
-	}
+	public void scale(float x, float y, float z);
 
 	/**
 	 * Pitches the entity by the provided amount
 	 * @param angle
 	 */
-	public void pitch(float angle) {
-		setPitch(angle);
-	}
+	public void pitch(float angle);
 
 	/**
 	 * Yaws the entity by the provided amount
 	 * @param angle
 	 */
-	public void yaw(float angle) {
-		setYaw(angle);
-	}
+	public void yaw(float angle);
 
 	/**
 	 * Rolls the entity by the provided amount
 	 * @param angle
 	 */
-	public void roll(float angle) {
-		setRoll(angle);
-	}
+	public void roll(float angle);
 
 	/**
 	 * Gets the entities current pitch, or vertical angle.
 	 * @return pitch of the entity
 	 */
-	public float getPitch() {
-		return getRotation().getPitch();
-	}
+	public float getPitch();
 
 	/**
 	 * Gets the entities current yaw, or horizontal angle.
 	 * @return yaw of the entity.
 	 */
-	public float getYaw() {
-		return getRotation().getYaw();
-	}
+	public float getYaw();
 
 	/**
 	 * Gets the entities current roll as a float.
 	 * @return roll of the entity
 	 */
-	public float getRoll() {
-		return getRotation().getRoll();
-	}
+	public float getRoll();
 
 	/**
 	 * Sets the pitch of the entity.
 	 * @param ang
 	 */
-	public void setPitch(float angle) {
-		setAxisAngles(getPitch(), getYaw(), angle);
-	}
-
+	public void setPitch(float angle);
 	/**
 	 * Sets the roll of the entity.
 	 * @param ang
 	 */
-	public void setRoll(float angle) {
-		setAxisAngles(getPitch(), getYaw(), angle);
-	}
+	public void setRoll(float angle);
 
 	/**
 	 * sets the yaw of the entity.
 	 * @param ang
 	 */
-	public void setYaw(float angle) {
-		setAxisAngles(getPitch(), angle, getRoll());
-	}
-
-	private void setAxisAngles(float pitch, float yaw, float roll) {
-		setRotation(MathHelper.rotation(pitch, yaw, roll));
-	}
-
-	public void copySnapshot() {
-		this.transform.set(transformLive);
-	}
+	public void setYaw(float angle);
 }
