@@ -29,6 +29,11 @@ package org.spout.api.material;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+
+import org.spout.api.collision.SpoutCollisionObject;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
 import org.spout.api.geo.cuboid.Block;
@@ -46,13 +51,21 @@ import org.spout.api.util.flag.Flag;
  * Defines the specific characteristics of a Block
  */
 public class BlockMaterial extends Material implements Placeable {
+	public static final CollisionShape BOX_SHAPE = new BoxShape(MathHelper.toVector3f(1, 1, 1));
 
 	public static final BlockMaterial AIR = new BasicAir();
-	public static final BlockMaterial SOLID = new BlockMaterial("solid").setHardness(1.f);
-	public static final BlockMaterial UNBREAKABLE = new BlockMaterial("Unbreakable").setHardness(100.f);
+	public static final BlockMaterial SOLID = new BlockMaterial("solid").setHardness(1.f).setCollisionShape(BOX_SHAPE);
+	public static final BlockMaterial UNBREAKABLE = new BlockMaterial("Unbreakable").setHardness(100.f).setCollisionShape(BOX_SHAPE);
 	public static final BlockMaterial SKYBOX = new BasicSkyBox();
-	public static final BlockMaterial ERROR = new BlockMaterial("Missing Plugin").setHardness((100.f));
-	
+	public static final BlockMaterial ERROR = new BlockMaterial("Missing Plugin").setHardness((100.f)).setCollisionShape(BOX_SHAPE);
+
+	private ByteBitSet occlusion = new ByteBitSet(BlockFaces.NESWBT);
+	private float hardness = 0F;
+	private float friction = 0F;
+	private byte opacity = 0xF;
+
+	private final CollisionObject collisionObject = new CollisionObject();
+
 	public BlockMaterial(String name) {
 		super(name);
 	}
@@ -103,11 +116,6 @@ public class BlockMaterial extends Material implements Placeable {
 
 		return (BlockMaterial) mat;
 	}
-
-	private ByteBitSet occlusion = new ByteBitSet(BlockFaces.NESWBT);
-	private float hardness = 0F;
-	private float friction = 0F;
-	private byte opacity = 0xF;
 
 	@Override
 	public BlockMaterial getSubMaterial(short data) {
@@ -429,4 +437,29 @@ public class BlockMaterial extends Material implements Placeable {
 		return (m.getId() == getId() && ((m.getData() ^ getData()) & getDataMask()) == 0);
 	}
 
+	//TODO Thread safety
+	/**
+	 * Gets the CollisionObject of this material
+	 * @return CollisionObject
+	 */
+	public final CollisionObject getCollisionObject() {
+		return collisionObject;
+	}
+
+	/**
+	 * Gets the collision shape this block material has.
+	 * @return CollisionShape
+	 */
+	public CollisionShape getCollisionShape() {
+		return collisionObject.getCollisionShape();
+	}
+
+	/**
+	 * Sets the CollisionShape of this block material.
+	 * @param shape The new collision shape of this block material
+	 */
+	public BlockMaterial setCollisionShape(CollisionShape shape) {
+		collisionObject.setCollisionShape(shape);
+		return this;
+	}
 }

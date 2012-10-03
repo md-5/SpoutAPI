@@ -27,6 +27,7 @@
 package org.spout.api.material.block;
 
 import org.spout.api.Source;
+import org.spout.api.collision.SpoutCollisionSnapshot;
 import org.spout.api.geo.World;
 import org.spout.api.geo.cuboid.Block;
 import org.spout.api.material.BlockMaterial;
@@ -38,6 +39,7 @@ import org.spout.api.material.source.GenericMaterialSource;
 public class BlockSnapshot extends GenericMaterialSource {
 	private final int x, y, z;
 	private final World world;
+	private final SpoutCollisionSnapshot collisionSnapshot;
 
 	public BlockSnapshot(Block block) {
 		this(block, block.getMaterial(), block.getData());
@@ -53,6 +55,7 @@ public class BlockSnapshot extends GenericMaterialSource {
 		this.y = y;
 		this.z = z;
 		this.world = world;
+		collisionSnapshot = new SpoutCollisionSnapshot();
 	}
 
 	/**
@@ -91,11 +94,14 @@ public class BlockSnapshot extends GenericMaterialSource {
 	/**
 	 * Gets which block corresponding to the snapshot
 	 *
-	 * @param the source
 	 * @return the block
 	 */
 	public Block getBlock(Source source) {
 		return this.world.getBlock(this.x, this.y, this.z, source);
+	}
+
+	public SpoutCollisionSnapshot getCollisionSnapshot() {
+		return collisionSnapshot;
 	}
 
 	/**

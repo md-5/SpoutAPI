@@ -26,26 +26,66 @@
  */
 package org.spout.api.component.components;
 
+import javax.vecmath.Vector3f;
+
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.shapes.CollisionShape;
+
 import org.spout.api.data.Data;
+import org.spout.api.math.MathHelper;
 import org.spout.api.math.Vector3;
 
 /**
  * A component that represents the physics object that is a motion of the entity within the world.
  */
 public class PhysicsComponent extends EntityComponent {
-	private Vector3 lastVelocity = Vector3.ZERO;
+	private CollisionObject collisionObject;
+	private Vector3 lastLinearVelocity = Vector3.ZERO;
+	private Vector3 lastAngularVelocity = Vector3.ZERO;
 
-	@Override
-	public void onTick(float dt) {
-		lastVelocity = getVelocity();
+	public CollisionObject getCollisionObject() {
+		return collisionObject;
 	}
 
-	public Vector3 getVelocity() {
-		return getData().get(Data.VELOCITY);
+	//TODO Not thread safe at all...
+	public void setCollisionObject(CollisionObject collisionObject) {
+		if (collisionObject == null) {
+			throw new IllegalStateException("Collision object is NOT allowed to be null!");
+		}
+		this.collisionObject = collisionObject;
+	}
+
+	public CollisionShape getCollisionShape() {
+		return collisionObject.getCollisionShape();
+	}
+
+	public void setCollisionShape(CollisionShape shape) {
+		collisionObject.setCollisionShape(shape);
+	}
+
+	public Vector3 getAngularVelocity() {
+		Vector3f bVector = new Vector3f();
+		collisionObject.getInterpolationAngularVelocity(bVector);
+		return MathHelper.toVector3(bVector);
+	}
+
+	public Vector3 getLinearVelocity() {
+		Vector3f bVector = new Vector3f();
+		collisionObject.getInterpolationLinearVelocity(bVector);
+		return MathHelper.toVector3(bVector);
+	}
+
+	public void setAngularVelocity(Vector3 velocity) {
+		collisionObject.setInterpolationAngularVelocity(MathHelper.toVector3f(velocity));
+	}
+
+	public void setLinearVelocity(Vector3 velocity) {
+		collisionObject.setInterpolationLinearVelocity(MathHelper.toVector3f(velocity));
 	}
 
 	public void setVelocity(Vector3 velocity) {
-		getData().put(Data.VELOCITY, velocity);
+		setAngularVelocity(velocity);
+		setLinearVelocity(velocity);
 	}
 
 	/**
@@ -53,6 +93,11 @@ public class PhysicsComponent extends EntityComponent {
 	 * @return True if dirty, false if not
 	 */
 	public boolean isVelocityDirty() {
-		return !lastVelocity.equals(getVelocity());
+		return !lastAngularVelocity.equals(getAngularVelocity()) && !lastLinearVelocity.equals(getLinearVelocity());
+	}
+
+	public void copySnapshot() {
+		lastAngularVelocity = getAngularVelocity();
+		lastLinearVelocity = getLinearVelocity();
 	}
 }
