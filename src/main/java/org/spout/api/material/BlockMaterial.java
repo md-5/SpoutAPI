@@ -33,7 +33,6 @@ import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 
-import org.spout.api.collision.SpoutCollisionObject;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
 import org.spout.api.geo.cuboid.Block;
@@ -51,6 +50,7 @@ import org.spout.api.util.flag.Flag;
  * Defines the specific characteristics of a Block
  */
 public class BlockMaterial extends Material implements Placeable {
+	//CollisionShape common constants
 	public static final CollisionShape BOX_SHAPE = new BoxShape(MathHelper.toVector3f(1, 1, 1));
 
 	public static final BlockMaterial AIR = new BasicAir();
@@ -128,7 +128,7 @@ public class BlockMaterial extends Material implements Placeable {
 	 * @return friction value
 	 */
 	public float getFriction() {
-		return this.friction;
+		return collisionObject.getFriction();
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class BlockMaterial extends Material implements Placeable {
 	 * @return this material
 	 */
 	public BlockMaterial setFriction(float slip) {
-		this.friction = slip;
+		collisionObject.setFriction(slip);
 		return this;
 	}
 

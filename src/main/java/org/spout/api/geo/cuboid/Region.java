@@ -37,6 +37,7 @@ import org.spout.api.geo.World;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.math.BitSize;
 import org.spout.api.entity.Player;
+import org.spout.api.math.Vector3;
 import org.spout.api.scheduler.TaskManager;
 import org.spout.api.util.thread.DelayedWrite;
 import org.spout.api.util.thread.LiveRead;
@@ -202,8 +203,6 @@ public abstract class Region extends Cube implements AreaChunkAccess, AreaPhysic
 
 	/**
 	 * Gets all entities with the specified type.
-	 * @param type The {@link Class} for the type.
-	 * @param type The type of entity.
 	 * @return A set of entities with the specified type.
 	 */
 	@SnapshotRead
@@ -229,7 +228,19 @@ public abstract class Region extends Cube implements AreaChunkAccess, AreaPhysic
 	public Iterator<Chunk> iterator() {
 		return new ChunkIterator();
 	}
-	
+
+	/**
+	 * Sets the gravity applied to dynamic collision objects within this region.
+	 * @param gravity Vector3 representing the gravity
+	 */
+	public abstract void setGravity(Vector3 gravity);
+
+	/**
+	 * Gets the gravity applied to dynamic collision objects within this region.
+	 * @return Vector3 representing gravity
+	 */
+	public abstract Vector3 getGravity();
+
 	private class ChunkIterator implements Iterator<Chunk> {
 		private Chunk next;
 		public ChunkIterator() {

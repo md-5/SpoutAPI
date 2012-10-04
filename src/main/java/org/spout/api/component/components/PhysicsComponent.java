@@ -43,6 +43,11 @@ public class PhysicsComponent extends EntityComponent {
 	private Vector3 lastLinearVelocity = Vector3.ZERO;
 	private Vector3 lastAngularVelocity = Vector3.ZERO;
 
+	@Override
+	public boolean isDetachable() {
+		return false;
+	}
+
 	public CollisionObject getCollisionObject() {
 		return collisionObject;
 	}
@@ -83,6 +88,10 @@ public class PhysicsComponent extends EntityComponent {
 		collisionObject.setInterpolationLinearVelocity(MathHelper.toVector3f(velocity));
 	}
 
+	/**
+	 * Sets both angular and linear velocities.
+	 * @param velocity The vector that is the velocity
+	 */
 	public void setVelocity(Vector3 velocity) {
 		setAngularVelocity(velocity);
 		setLinearVelocity(velocity);
