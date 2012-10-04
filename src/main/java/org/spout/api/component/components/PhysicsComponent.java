@@ -33,6 +33,7 @@ import javax.vecmath.Vector3f;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 
 import org.spout.api.data.Data;
@@ -44,16 +45,9 @@ import org.spout.api.math.Vector3;
 /**
  * A component that represents the physics object that is a motion of the entity within the world.
  */
-public class PhysicsComponent extends EntityComponent {
+public abstract class PhysicsComponent extends EntityComponent {
 	private CollisionObject collisionObject;
-	private Vector3 lastLinearVelocity = Vector3.ZERO;
-	private Vector3 lastAngularVelocity = Vector3.ZERO;
-	private SpoutDefaultMotionState motionState;
-
-	@Override
-	public void onAttached() {
-		motionState = new SpoutDefaultMotionState(getHolder());
-	}
+	private float mass;
 
 	@Override
 	public boolean isDetachable() {
@@ -80,72 +74,31 @@ public class PhysicsComponent extends EntityComponent {
 		collisionObject.setCollisionShape(shape);
 	}
 
-	public Vector3 getAngularVelocity() {
-		Vector3f bVector = new Vector3f();
-		collisionObject.getInterpolationAngularVelocity(bVector);
-		return MathHelper.toVector3(bVector);
+	public float getMass() {
+		return mass;
 	}
 
-	public Vector3 getLinearVelocity() {
-		Vector3f bVector = new Vector3f();
-		collisionObject.getInterpolationLinearVelocity(bVector);
-		return MathHelper.toVector3(bVector);
+	public void setMass(float mass) {
+		this.mass = mass;
 	}
 
-	public void setAngularVelocity(Vector3 velocity) {
-		collisionObject.setInterpolationAngularVelocity(MathHelper.toVector3f(velocity));
-	}
+	public abstract Vector3 getAngularVelocity();
 
-	public void setLinearVelocity(Vector3 velocity) {
-		collisionObject.setInterpolationLinearVelocity(MathHelper.toVector3f(velocity));
-	}
+	public abstract Vector3 getAngularVelocityLive();
 
-	/**
-	 * Sets both angular and linear velocities.
-	 * @param velocity The vector that is the velocity
-	 */
-	public void setVelocity(Vector3 velocity) {
-		setAngularVelocity(velocity);
-		setLinearVelocity(velocity);
-	}
+	public abstract Vector3 getLinearVelocity();
 
-	/**
-	 * Returns whether the velocity has changed between the last and live velocity values.
-	 * @return True if dirty, false if not
-	 */
-	public boolean isVelocityDirty() {
-		return !lastAngularVelocity.equals(getAngularVelocity()) && !lastLinearVelocity.equals(getLinearVelocity());
-	}
+	public abstract Vector3 getLinearVelocityLive();
 
-	public SpoutDefaultMotionState getMotionState() {
-		return motionState;
-	}
+	public abstract void setAngularVelocity(Vector3 velocity);
 
-	public void copySnapshot() {
-		lastAngularVelocity = getAngularVelocity();
-		lastLinearVelocity = getLinearVelocity();
-	}
+	public abstract void setLinearVelocity(Vector3 velocity);
 
-	//TODO Thread safety!! I think
-	private static class SpoutDefaultMotionState extends DefaultMotionState {
-		private final Entity entity;
+	public abstract void setVelocity(Vector3 velocity);
 
-		public SpoutDefaultMotionState(Entity entity) {
-			this.entity = entity;
-		}
+	public abstract MotionState getMotionState();
 
-		@Override
-		public Transform getWorldTransform(Transform transform) {
-			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransform();
-			transform.set(new Matrix4f(MathHelper.toQuaternionf(spoutTransform.getRotation()), MathHelper.toVector3f(spoutTransform.getPosition()), 1));
-			return transform;
-		}
+	public abstract void setMotionState(MotionState state);
 
-		@Override
-		public void setWorldTransform(Transform transform) {
-			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransformLive();
-			spoutTransform.setPosition(new Point(MathHelper.toVector3(transform.origin), entity.getWorld()));
-			spoutTransform.setRotation(MathHelper.toQuaternion(transform.getRotation(new Quat4f())));
-		}
-	}
+	public abstract boolean isVelocityDirty();
 }
