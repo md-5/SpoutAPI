@@ -32,6 +32,7 @@ import javax.vecmath.Vector3f;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
@@ -53,10 +54,11 @@ public class PhysicsComponent extends EntityComponent {
 	private CollisionObject collisionObjectLive = new CollisionObject();
 	private MotionState state;
 
-	private Vector3 angularVelocity;
-	private Vector3 angularVelocityLive;
-	private Vector3 linearVelocity;
-	private Vector3 linearVelocityLive;
+	private Vector3 angularVelocity = Vector3.ZERO;
+	private Vector3 angularVelocityLive = Vector3.ZERO;
+	private Vector3 linearVelocity = Vector3.ZERO;
+	private Vector3 linearVelocityLive = Vector3.ZERO;
+	private Vector3 inertia = Vector3.ZERO;
 
 	@Override
 	public void onAttached() {
@@ -97,6 +99,14 @@ public class PhysicsComponent extends EntityComponent {
 
 	public void setMass(float mass) {
 		this.mass = mass;
+	}
+
+	public Vector3 getInertia() {
+		return inertia;
+	}
+
+	public void setInertia(Vector3 inertia) {
+		this.inertia = inertia;
 	}
 
 	public Vector3 getAngularVelocity() {
@@ -147,11 +157,12 @@ public class PhysicsComponent extends EntityComponent {
 	public void copySnapshot() {
 		angularVelocity = angularVelocityLive;
 		linearVelocity = linearVelocityLive;
+		collisionObject = collisionObjectLive;
 	}
 
-	public void updateCollisionVelocity() {
-		getCollisionObject().setInterpolationAngularVelocity(MathHelper.toVector3f(angularVelocityLive));
-		getCollisionObject().setInterpolationLinearVelocity(MathHelper.toVector3f(linearVelocityLive));
+	public void updateCollisionData() {
+		getCollisionObjectLive().setInterpolationAngularVelocity(MathHelper.toVector3f(angularVelocityLive));
+		getCollisionObjectLive().setInterpolationLinearVelocity(MathHelper.toVector3f(linearVelocityLive));
 	}
 
 	//TODO Thread safety!! I think
@@ -165,7 +176,8 @@ public class PhysicsComponent extends EntityComponent {
 		@Override
 		public Transform getWorldTransform(Transform transform) {
 			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransformLive();
-			transform.set(new Matrix4f(MathHelper.toQuaternionf(spoutTransform.getRotation()), MathHelper.toVector3f(spoutTransform.getPosition()), 1));
+			Point point = spoutTransform.getPosition();
+			transform.set(new Matrix4f(MathHelper.toQuaternionf(spoutTransform.getRotation()), MathHelper.toVector3f(point.getX(), point.getY(), point.getZ()), 1));
 			return transform;
 		}
 
