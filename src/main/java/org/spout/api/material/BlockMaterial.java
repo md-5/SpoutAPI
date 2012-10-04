@@ -61,10 +61,14 @@ public class BlockMaterial extends Material implements Placeable {
 
 	private ByteBitSet occlusion = new ByteBitSet(BlockFaces.NESWBT);
 	private float hardness = 0F;
-	private float friction = 0F;
 	private byte opacity = 0xF;
 
 	private final CollisionObject collisionObject = new CollisionObject();
+
+	//TODO Convert to CollisionFlags and remove
+	private boolean isPenetrable = false;
+	private boolean isInteractable = true;
+	private float mass = 0;
 
 	public BlockMaterial(String name) {
 		super(name);
@@ -415,6 +419,9 @@ public class BlockMaterial extends Material implements Placeable {
 	 * @param clickedFace of the material clicked
 	 */
 	public void onInteractBy(Entity entity, Block block, Action type, BlockFace clickedFace) {
+		if (!isInteractable) {
+			return;
+		}
 	}
 
 	/**
@@ -461,5 +468,29 @@ public class BlockMaterial extends Material implements Placeable {
 	public BlockMaterial setCollisionShape(CollisionShape shape) {
 		collisionObject.setCollisionShape(shape);
 		return this;
+	}
+
+	public boolean isPenetrable() {
+		return isPenetrable;
+	}
+
+	public void setPenetrable(boolean penetrable) {
+		isPenetrable = penetrable;
+	}
+
+	public boolean isInteractable() {
+		return isInteractable;
+	}
+
+	public void setInteractable(boolean interactable) {
+		isInteractable = interactable;
+	}
+
+	public float getMass() {
+		return mass;
+	}
+
+	public void setMass(float mass) {
+		this.mass = mass;
 	}
 }

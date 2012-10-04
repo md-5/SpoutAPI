@@ -26,12 +26,18 @@
  */
 package org.spout.api.component.components;
 
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.Transform;
 
 import org.spout.api.data.Data;
+import org.spout.api.entity.Entity;
+import org.spout.api.geo.discrete.Point;
 import org.spout.api.math.MathHelper;
 import org.spout.api.math.Vector3;
 
@@ -42,6 +48,12 @@ public class PhysicsComponent extends EntityComponent {
 	private CollisionObject collisionObject;
 	private Vector3 lastLinearVelocity = Vector3.ZERO;
 	private Vector3 lastAngularVelocity = Vector3.ZERO;
+	private SpoutDefaultMotionState motionState;
+
+	@Override
+	public void onAttached() {
+		motionState = new SpoutDefaultMotionState(getHolder());
+	}
 
 	@Override
 	public boolean isDetachable() {
@@ -105,8 +117,35 @@ public class PhysicsComponent extends EntityComponent {
 		return !lastAngularVelocity.equals(getAngularVelocity()) && !lastLinearVelocity.equals(getLinearVelocity());
 	}
 
+	public SpoutDefaultMotionState getMotionState() {
+		return motionState;
+	}
+
 	public void copySnapshot() {
 		lastAngularVelocity = getAngularVelocity();
 		lastLinearVelocity = getLinearVelocity();
+	}
+
+	//TODO Thread safety!! I think
+	private static class SpoutDefaultMotionState extends DefaultMotionState {
+		private final Entity entity;
+
+		public SpoutDefaultMotionState(Entity entity) {
+			this.entity = entity;
+		}
+
+		@Override
+		public Transform getWorldTransform(Transform transform) {
+			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransform();
+			transform.set(new Matrix4f(MathHelper.toQuaternionf(spoutTransform.getRotation()), MathHelper.toVector3f(spoutTransform.getPosition()), 1));
+			return transform;
+		}
+
+		@Override
+		public void setWorldTransform(Transform transform) {
+			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransformLive();
+			spoutTransform.setPosition(new Point(MathHelper.toVector3(transform.origin), entity.getWorld()));
+			spoutTransform.setRotation(MathHelper.toQuaternion(transform.getRotation(new Quat4f())));
+		}
 	}
 }
