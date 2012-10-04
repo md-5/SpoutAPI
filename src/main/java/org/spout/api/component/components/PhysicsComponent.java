@@ -44,10 +44,24 @@ import org.spout.api.math.Vector3;
 
 /**
  * A component that represents the physics object that is a motion of the entity within the world.
+ *
+ * 	TODO Not thread safe at all...
  */
-public abstract class PhysicsComponent extends EntityComponent {
-	private CollisionObject collisionObject;
+public class PhysicsComponent extends EntityComponent {
 	private float mass;
+	private CollisionObject collisionObject = new CollisionObject();
+	private CollisionObject collisionObjectLive = new CollisionObject();
+	private MotionState state;
+
+	private Vector3 angularVelocity;
+	private Vector3 angularVelocityLive;
+	private Vector3 linearVelocity;
+	private Vector3 linearVelocityLive;
+
+	@Override
+	public void onAttached() {
+		state = new SpoutDefaultMotionState(getHolder());
+	}
 
 	@Override
 	public boolean isDetachable() {
@@ -58,12 +72,15 @@ public abstract class PhysicsComponent extends EntityComponent {
 		return collisionObject;
 	}
 
-	//TODO Not thread safe at all...
+	public CollisionObject getCollisionObjectLive() {
+		return collisionObjectLive;
+	}
+
 	public void setCollisionObject(CollisionObject collisionObject) {
 		if (collisionObject == null) {
 			throw new IllegalStateException("Collision object is NOT allowed to be null!");
 		}
-		this.collisionObject = collisionObject;
+		this.collisionObjectLive = collisionObject;
 	}
 
 	public CollisionShape getCollisionShape() {
@@ -82,23 +99,81 @@ public abstract class PhysicsComponent extends EntityComponent {
 		this.mass = mass;
 	}
 
-	public abstract Vector3 getAngularVelocity();
+	public Vector3 getAngularVelocity() {
+		return angularVelocity;
+	}
 
-	public abstract Vector3 getAngularVelocityLive();
+	public Vector3 getAngularVelocityLive() {
+		return angularVelocityLive;
+	}
 
-	public abstract Vector3 getLinearVelocity();
+	public Vector3 getLinearVelocity() {
+		return linearVelocity;
+	}
 
-	public abstract Vector3 getLinearVelocityLive();
+	public Vector3 getLinearVelocityLive() {
+		return linearVelocityLive;
+	}
 
-	public abstract void setAngularVelocity(Vector3 velocity);
+	public void setAngularVelocity(Vector3 velocity) {
+		angularVelocityLive = velocity;
+	}
 
-	public abstract void setLinearVelocity(Vector3 velocity);
+	public void setLinearVelocity(Vector3 velocity) {
+		linearVelocityLive = velocity;
+	}
 
-	public abstract void setVelocity(Vector3 velocity);
+	public void setVelocity(Vector3 velocity) {
+		setAngularVelocity(velocity);
+		setLinearVelocity(velocity);
+	}
 
-	public abstract MotionState getMotionState();
+	public MotionState getMotionState() {
+		return state;
+	}
 
-	public abstract void setMotionState(MotionState state);
+	public void setMotionState(MotionState state) {
+		this.state = state;
+	}
 
-	public abstract boolean isVelocityDirty();
+	public boolean isVelocityDirty() {
+		return !angularVelocity.equals(angularVelocityLive) && !linearVelocity.equals(linearVelocityLive);
+	}
+
+	public boolean isCollisionObjectDirty() {
+		return !collisionObject.equals(collisionObjectLive);
+	}
+
+	public void copySnapshot() {
+		angularVelocity = angularVelocityLive;
+		linearVelocity = linearVelocityLive;
+	}
+
+	public void updateCollisionVelocity() {
+		getCollisionObject().setInterpolationAngularVelocity(MathHelper.toVector3f(angularVelocityLive));
+		getCollisionObject().setInterpolationLinearVelocity(MathHelper.toVector3f(linearVelocityLive));
+	}
+
+	//TODO Thread safety!! I think
+	private static class SpoutDefaultMotionState extends DefaultMotionState {
+		private final Entity entity;
+
+		public SpoutDefaultMotionState(Entity entity) {
+			this.entity = entity;
+		}
+
+		@Override
+		public Transform getWorldTransform(Transform transform) {
+			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransformLive();
+			transform.set(new Matrix4f(MathHelper.toQuaternionf(spoutTransform.getRotation()), MathHelper.toVector3f(spoutTransform.getPosition()), 1));
+			return transform;
+		}
+
+		@Override
+		public void setWorldTransform(Transform transform) {
+			org.spout.api.geo.discrete.Transform spoutTransform = entity.getTransform().getTransformLive();
+			spoutTransform.setPosition(new Point(MathHelper.toVector3(transform.origin), entity.getWorld()));
+			spoutTransform.setRotation(MathHelper.toQuaternion(transform.getRotation(new Quat4f())));
+		}
+	}
 }
