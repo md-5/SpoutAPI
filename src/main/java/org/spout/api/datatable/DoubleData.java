@@ -24,63 +24,61 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.inventory.shape;
+package org.spout.api.datatable;
 
 import java.io.Serializable;
 
-import org.spout.api.inventory.util.GridIterator;
+import com.google.common.util.concurrent.AtomicDouble;
 
-/**
- * Represents a grid that can be iterated through in the correct order of an 
- * {@link org.spout.api.inventory.Inventory}
- */
-public class Grid implements Iterable<Integer>, Serializable {
-	private static final long serialVersionUID = 1L;
-	/**
-	 * The length of the grid
-	 */
-	private final int length;
-	/**
-	 * The height of the grid
-	 */
-	private final int height;
+class DoubleData extends AbstractData {
+	private AtomicDouble data = new AtomicDouble(0);
 
-	/**
-	 * Constructs a new grid object
-	 * @param length of the grid
-	 * @param height of the grid
-	 */
-	public Grid(int length, int height) {
-		this.length = length;
-		this.height = height;
+	public DoubleData(int key) {
+		super(key);
 	}
 
-	/**
-	 * Gets the length of the grid
-	 * @return length
-	 */
-	public int getLength() {
-		return length;
-	}
-
-	/**
-	 * Gets the height of the grid
-	 * @return height
-	 */
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * Gets the size of the grid
-	 * @return the size of the grid
-	 */
-	public int getSize() {
-		return length * height;
+	public DoubleData(int key, double value) {
+		super(key);
+		data.set(value);
 	}
 
 	@Override
-	public GridIterator iterator() {
-		return new GridIterator(this);
+	public void set(Object value) {
+		throw new IllegalArgumentException("This is an double value, use set(double)");
 	}
+
+	public void set(double value) {
+		data.set(value);
+	}
+
+	@Override
+	public Serializable get() {
+		return data.get();
+	}
+
+	@Override
+	public byte[] compress() {
+		return LongData.compressRaw(Double.doubleToRawLongBits(data.get()));
+	}
+
+	@Override
+	public void decompress(byte[] compressed) {
+		set(Double.longBitsToDouble(LongData.decompressRaw(compressed)));
+	}
+
+	@Override
+	public byte getObjectTypeId() {
+		return 7;
+	}
+
+	@Override
+	public AbstractData newInstance(int key) {
+		return new DoubleData(key);
+	}
+
+	@Override
+	public int fixedLength() {
+		return 8;
+	}
+
 }

@@ -24,63 +24,69 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.inventory.shape;
+package org.spout.api.component;
 
-import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 
-import org.spout.api.inventory.util.GridIterator;
+import org.spout.api.component.Component;
+import org.spout.api.component.ComponentOwner;
+import org.spout.api.component.components.DatatableComponent;
+import org.spout.api.geo.cuboid.Chunk;
 
-/**
- * Represents a grid that can be iterated through in the correct order of an 
- * {@link org.spout.api.inventory.Inventory}
- */
-public class Grid implements Iterable<Integer>, Serializable {
-	private static final long serialVersionUID = 1L;
-	/**
-	 * The length of the grid
-	 */
-	private final int length;
-	/**
-	 * The height of the grid
-	 */
-	private final int height;
-
-	/**
-	 * Constructs a new grid object
-	 * @param length of the grid
-	 * @param height of the grid
-	 */
-	public Grid(int length, int height) {
-		this.length = length;
-		this.height = height;
+public class ChunkComponentOwner implements ComponentOwner {
+	private final DatatableComponent data = new DatatableComponent();
+	private final Chunk chunk;
+	private final int x, y, z;
+	public ChunkComponentOwner(Chunk chunk, int x, int y, int z) {
+		this.chunk = chunk;
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
-
-	/**
-	 * Gets the length of the grid
-	 * @return length
-	 */
-	public int getLength() {
-		return length;
-	}
-
-	/**
-	 * Gets the height of the grid
-	 * @return height
-	 */
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * Gets the size of the grid
-	 * @return the size of the grid
-	 */
-	public int getSize() {
-		return length * height;
+	@Override
+	public Collection<Component> values() {
+		return Collections.emptyList();
 	}
 
 	@Override
-	public GridIterator iterator() {
-		return new GridIterator(this);
+	public DatatableComponent getData() {
+		return data;
+	}
+
+	/**
+	 * Gets the chunk this component is in
+	 * 
+	 * @return chunk
+	 */
+	public Chunk getChunk() {
+		return chunk;
+	}
+
+	/**
+	 * Gets the world block x-coordinate
+	 * 
+	 * @return world x-coordinate
+	 */
+	public int getX() {
+		return x;
+	}
+
+	/**
+	 * Gets the world block y-coordinate
+	 * 
+	 * @return world y-coordinate
+	 */
+	public int getY() {
+		return y;
+	}
+
+	/**
+	 * Gets the world block z-coordinate
+	 * 
+	 * @return world z-coordinate
+	 */
+	public int getZ() {
+		return z;
 	}
 }

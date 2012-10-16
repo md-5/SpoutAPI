@@ -40,6 +40,10 @@ import org.spout.api.map.DefaultedKey;
 public final class DatatableComponent extends Component implements SerializableMap {
 	private final ManagedHashMap dataMap;
 
+	public DatatableComponent(ManagedHashMap data) {
+		this.dataMap = data;
+	}
+
 	public DatatableComponent(byte[] data) {
 		this.dataMap = new ManagedHashMap();
 		if (data != null && data.length > 0) {
@@ -52,7 +56,7 @@ public final class DatatableComponent extends Component implements SerializableM
 	}
 
 	public DatatableComponent() {
-		this(null);
+		this((byte[])null);
 	}
 
 	public ManagedHashMap getBaseMap() {
@@ -67,6 +71,11 @@ public final class DatatableComponent extends Component implements SerializableM
 	@Override
 	public <T extends Serializable> T put(DefaultedKey<T> key, T value) {
 		return dataMap.put(key, value);
+	}
+	
+	@Override
+	public <T extends Serializable> T putIfAbsent(DefaultedKey<T> key, T value) {
+		return dataMap.putIfAbsent(key, value);
 	}
 
 	@Override
@@ -136,6 +145,11 @@ public final class DatatableComponent extends Component implements SerializableM
 
 	@Override
 	public Serializable put(String key, Serializable value) {
+		return this.dataMap.put(key, value);
+	}
+	
+	@Override
+	public Serializable putIfAbsent(String key, Serializable value) {
 		return this.dataMap.put(key, value);
 	}
 

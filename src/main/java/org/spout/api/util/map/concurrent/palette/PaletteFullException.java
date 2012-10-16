@@ -24,63 +24,14 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.inventory.shape;
+package org.spout.api.util.map.concurrent.palette;
 
-import java.io.Serializable;
+public class PaletteFullException extends Exception {
 
-import org.spout.api.inventory.util.GridIterator;
-
-/**
- * Represents a grid that can be iterated through in the correct order of an 
- * {@link org.spout.api.inventory.Inventory}
- */
-public class Grid implements Iterable<Integer>, Serializable {
 	private static final long serialVersionUID = 1L;
-	/**
-	 * The length of the grid
-	 */
-	private final int length;
-	/**
-	 * The height of the grid
-	 */
-	private final int height;
-
-	/**
-	 * Constructs a new grid object
-	 * @param length of the grid
-	 * @param height of the grid
-	 */
-	public Grid(int length, int height) {
-		this.length = length;
-		this.height = height;
+	
+	public PaletteFullException(String message) {
+		super(message);
 	}
 
-	/**
-	 * Gets the length of the grid
-	 * @return length
-	 */
-	public int getLength() {
-		return length;
-	}
-
-	/**
-	 * Gets the height of the grid
-	 * @return height
-	 */
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * Gets the size of the grid
-	 * @return the size of the grid
-	 */
-	public int getSize() {
-		return length * height;
-	}
-
-	@Override
-	public GridIterator iterator() {
-		return new GridIterator(this);
-	}
 }

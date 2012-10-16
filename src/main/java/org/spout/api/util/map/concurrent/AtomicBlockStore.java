@@ -26,6 +26,8 @@
  */
 package org.spout.api.util.map.concurrent;
 
+import gnu.trove.set.hash.TIntHashSet;
+
 import org.spout.api.material.source.MaterialSource;
 import org.spout.api.math.Vector3;
 
@@ -35,36 +37,6 @@ import org.spout.api.math.Vector3;
  * object.
  */
 public interface AtomicBlockStore {
-
-	/**
-	 * Gets the sequence number associated with a block location.<br>
-	 * <br>
-	 * If soft is true, this method counts as a volatile read. Otherwise, it is
-	 * both a volatile read and a volatile write.<br>
-	 * <br>
-	 * Soft reads should only be used for the first of the 2 step process for
-	 * confirming that data hasn't changed.
-	 *
-	 * @param x the x coordinate
-	 * @param y the y coordinate
-	 * @param z the z coordinate
-	 * @return the sequence number, or DatatableSequenceNumber.ATOMIC for a
-	 *         single short record
-	 */
-	public int getSequence(int x, int y, int z);
-
-	/**
-	 * Tests if a the sequence number associated with a particular block
-	 * location has not changed.
-	 *
-	 * @param x the x coordinate
-	 * @param y the y coordinate
-	 * @param z the z coordinate
-	 * @param expected the expected sequence number
-	 * @return true if the sequence number has not changed and expected is not
-	 *         DatatableSequenceNumber.ATOMIC
-	 */
-	public boolean testSequence(int x, int y, int z, int expected);
 
 	/**
 	 * Gets the block id for a block at a particular location.<br>
@@ -233,11 +205,14 @@ public interface AtomicBlockStore {
 
 	/**
 	 * Compresses the store.<br>
-	 * <br>
-	 * This method should only be called when the store is guaranteed not to be
-	 * accessed from any other thread.<br>
 	 */
 	public void compress();
+	
+	/**
+	 * Compresses the store.<br>
+	 * @param set to use to store used ids
+	 */
+	public void compress(TIntHashSet inUseSet);
 
 	/**
 	 * Gets if the dirty array has overflowed since the last reset.<br>
@@ -274,17 +249,5 @@ public interface AtomicBlockStore {
 	 * @param block
 	 * @return
 	 */
-	public Vector3 getDirtyBlock(int i);
-
-	/**
-	 * Marks a block as dirty.<br>
-	 * <br>
-	 * Updates for dirty blocks will be sent at the end of the tick.<br>
-	 *
-	 * @param x the x coordinate of the dirty block
-	 * @param y the y coordinate of the dirty block
-	 * @param z the z coordinate of the dirty block
-	 */
-	public void markDirty(int x, int y, int z);
-	
+	public Vector3 getDirtyBlock(int i);	
 }

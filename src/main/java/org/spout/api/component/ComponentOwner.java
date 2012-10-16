@@ -24,26 +24,26 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.material;
+package org.spout.api.component;
 
-import org.spout.api.geo.cuboid.Block;
+import java.util.Collection;
+
+import org.spout.api.component.components.DatatableComponent;
 
 /**
- * Represents that this block material should receive random tick updates.
+ * Represents an object which may own components.
  */
-public interface RandomBlockMaterial {
+public interface ComponentOwner {
+
 	/**
-	 * Called when a random tick update occurs to this material. 
-	 * <br/><br/>
-	 * Random tick updates are infrequent, and random updates that occur 
-	 * to any block whose material supports them. They should be used
-	 * when calculated dynamic updates would be too frequent and harm performance
-	 * and cause excessive memory usage, or when updates should not be 
-	 * saved to be resumed.
-	 * <br/><br/>
-	 * <b>Note:</b> Random tick updates may be delayed if the engine falls behind,
-	 * materials should not rely on tick updates happening regularly.
-	 * @param block where the random tick fired
+	 * Gets all components held by this component owner.
+	 * @return The components held by this owner
 	 */
-	public void onRandomTick(Block block);
+	public Collection<Component> values();
+
+	/**
+	 * Gets the datatable component held by this component owner.
+	 * @return Gets the datatable held by this owner
+	 */
+	public DatatableComponent getData();
 }

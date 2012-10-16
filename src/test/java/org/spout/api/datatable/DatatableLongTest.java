@@ -24,63 +24,62 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.inventory.shape;
+package org.spout.api.datatable;
 
-import java.io.Serializable;
+import static org.junit.Assert.assertTrue;
 
-import org.spout.api.inventory.util.GridIterator;
+import java.util.Random;
 
-/**
- * Represents a grid that can be iterated through in the correct order of an 
- * {@link org.spout.api.inventory.Inventory}
- */
-public class Grid implements Iterable<Integer>, Serializable {
-	private static final long serialVersionUID = 1L;
-	/**
-	 * The length of the grid
-	 */
-	private final int length;
-	/**
-	 * The height of the grid
-	 */
-	private final int height;
+import org.junit.Test;
 
-	/**
-	 * Constructs a new grid object
-	 * @param length of the grid
-	 * @param height of the grid
-	 */
-	public Grid(int length, int height) {
-		this.length = length;
-		this.height = height;
+public class DatatableLongTest {
+	private static final int LENGTH = 1000;
+
+	private Random r = new Random();
+
+	@Test
+	public void testLong() {
+		for (int x = 0; x < LENGTH; x++) {
+			checkLong(r.nextInt());
+		}
+
+		checkLong(0);
+
+		checkLong(1);
+
+		checkLong(-1);
+		
+		checkLong(Long.MAX_VALUE);
+		
+		checkLong(Long.MIN_VALUE);
 	}
 
-	/**
-	 * Gets the length of the grid
-	 * @return length
-	 */
-	public int getLength() {
-		return length;
+	private void checkLong(long value) {
+		int key = r.nextInt();
+
+		LongData i = new LongData(key);
+
+		i.set(value);
+
+		checkLong(i, key, value);
+
+		byte[] compressed = i.compress();
+
+		assertTrue("Compressed array wrong length", compressed.length == 8);
+
+		int key2 = r.nextInt();
+
+		LongData b2 = new LongData(key2);
+
+		b2.decompress(compressed);
+
+		checkLong(b2, key2, value);
 	}
 
-	/**
-	 * Gets the height of the grid
-	 * @return height
-	 */
-	public int getHeight() {
-		return height;
-	}
+	private void checkLong(LongData i, int key, long value) {
+		assertTrue("Wrong key, got " + i.hashCode() + ", expected " + key, i.hashCode() == key);
 
-	/**
-	 * Gets the size of the grid
-	 * @return the size of the grid
-	 */
-	public int getSize() {
-		return length * height;
-	}
-
-	@Override
-	public GridIterator iterator() {
-		return new GridIterator(this);
+		long v = (Long)i.get();
+		assertTrue("Wrong value, got " + v + ", expected: " + value, v == value);
 	}
 }

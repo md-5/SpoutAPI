@@ -24,18 +24,57 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.util.map.concurrent;
+package org.spout.api.datatable;
 
-import gnu.trove.map.TIntIntMap;
+import static org.junit.Assert.assertTrue;
 
-public interface TSyncIntIntMap extends TIntIntMap {
-	/**
-	 * Removes a key/value pair from the map, but only if the key is mapped to a
-	 * given value
-	 *
-	 * @param key the key
-	 * @param value the expected value
-	 * @return true if on success
-	 */
-	public boolean remove(int key, int value);
+import java.util.Random;
+
+import org.junit.Test;
+
+public class DatatableDoubleTest {
+	private static final int LENGTH = 1000;
+
+	private Random r = new Random();
+
+	@Test
+	public void testDouble() {
+		for (int x = 0; x < LENGTH; x++) {
+			checkDouble(r.nextDouble());
+		}
+
+		checkDouble(0.0D);
+
+		checkDouble(1.0D);
+
+		checkDouble(-1.0D);
+	}
+
+	private void checkDouble(double value) {
+		int key = r.nextInt();
+
+		DoubleData f = new DoubleData(key);
+
+		f.set(value);
+
+		checkDouble(f, key, value);
+
+		byte[] compressed = f.compress();
+
+		assertTrue("Compressed array wrong length", compressed.length == 8);
+
+		int key2 = r.nextInt();
+
+		DoubleData b2 = new DoubleData(key2);
+
+		b2.decompress(compressed);
+
+		checkDouble(b2, key2, value);
+	}
+
+	private void checkDouble(DoubleData f, int key, double value) {
+		assertTrue("Wrong key, got " + f.hashCode() + ", expected " + key, f.hashCode() == key);
+
+		assertTrue("Wrong value", f.get().equals(new Double(value)));
+	}
 }

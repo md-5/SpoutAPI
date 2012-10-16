@@ -24,59 +24,66 @@
  * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
  * including the MIT license.
  */
-package org.spout.api.component.components;
+package org.spout.api.util.map.concurrent.palette;
 
-import org.spout.api.math.MathHelper;
-import org.spout.api.math.Matrix;
-import org.spout.api.render.Camera;
-import org.spout.api.render.ViewFrustum;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
-public class CameraComponent extends EntityComponent implements Camera {
-	private Matrix projection;
-	private Matrix view;
-	private ViewFrustum frustum = new ViewFrustum();
-	private float fieldOfView = 75f;
+public class AtomicShortIntDirectBackingArray extends AtomicShortIntBackingArray {
+	
+	private final AtomicIntegerArray store;
+	private final int width;
 
-	public CameraComponent() {
-
+	public AtomicShortIntDirectBackingArray(int length) {
+		this(length, null);
 	}
-
-	public CameraComponent(Matrix createPerspective, Matrix createLookAt) {
-		projection = createPerspective;
-		view = createLookAt;
+	public AtomicShortIntDirectBackingArray(AtomicShortIntBackingArray previous) {
+		this(previous.length(), previous);
 	}
-
-	@Override
-	public void onAttached() {
-		// TODO Get FOV
-		projection = MathHelper.createPerspective(fieldOfView, 4.0f / 3.0f, .001f, 1000f);
-		updateView();
-		frustum.update(projection, view);
+	
+	private  AtomicShortIntDirectBackingArray(int length, AtomicShortIntBackingArray previous) {
+		super(length);
+		store = new AtomicIntegerArray(length);
+		width = AtomicShortIntPaletteBackingArray.roundUpWidth(length - 1);
+		try {
+			copyFromPrevious(previous);
+		} catch (PaletteFullException pfe) {
+			throw new IllegalStateException("Unable to copy old array to new array");
+		}
 	}
 
 	@Override
-	public Matrix getProjection() {
-		return projection;
+	public int width() {
+		return width;
 	}
 
 	@Override
-	public Matrix getView() {
-		return view;
+	public int getPaletteSize() {
+		return length();
 	}
 
 	@Override
-	public void updateView() {		
-		view = MathHelper.translate(getOwner().getTransform().getPosition()).multiply(MathHelper.rotate(getOwner().getTransform().getRotation()));
+	public int getPaletteUsage() {
+		return length();
 	}
 
 	@Override
-	public void onTick(float dt) {
-		updateView();
-		frustum.update(projection, view);
+	public int get(int i) {
+		return store.get(i);
 	}
 
 	@Override
-	public ViewFrustum getFrustum() {
-		return frustum;
+	public int set(int i, int newValue) throws PaletteFullException {
+		return store.getAndSet(i, newValue);
 	}
+
+	@Override
+	public boolean compareAndSet(int i, int expect, int update) throws PaletteFullException {
+		return store.compareAndSet(i, expect, update);
+	}
+
+	@Override
+	public boolean isPaletteMaxSize() {
+		return true;
+	}
+
 }

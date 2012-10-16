@@ -26,6 +26,8 @@
  */
 package org.spout.api.util.map.concurrent;
 
+import gnu.trove.set.hash.TIntHashSet;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -124,7 +126,6 @@ public final class AtomicBlockStoreImpl implements AtomicBlockStore {
 	 * @return the sequence number, or DatatableSequenceNumber.ATOMIC for a
 	 *         single short record
 	 */
-	@Override
 	public int getSequence(int x, int y, int z) {
 		checkCompressing();
 		int index = getIndex(x, y, z);
@@ -165,7 +166,6 @@ public final class AtomicBlockStoreImpl implements AtomicBlockStore {
 	 * @return true if the sequence number has not changed and expected is not
 	 *         DatatableSequenceNumber.ATOMIC
 	 */
-	@Override
 	public boolean testSequence(int x, int y, int z, int expected) {
 
 		if (expected == AtomicSequenceNumber.ATOMIC) {
@@ -586,15 +586,28 @@ public final class AtomicBlockStoreImpl implements AtomicBlockStore {
 		}
 		return array;
 	}
-
+	
 	/**
-	 * Compresses the auxiliary store.<br>
+	 * Compresses the store.<br>
 	 * <br>
 	 * This method should only be called when the store is guaranteed not to be
 	 * accessed from any other thread.<br>
 	 */
 	@Override
 	public void compress() {
+		compress(null);
+	}
+
+	/**
+	 * Compresses the auxiliary store.<br>
+	 * <br>
+	 * This method should only be called when the store is guaranteed not to be
+	 * accessed from any other thread.<br>
+	 * 
+	 * @param set to use to store used ids
+	 */
+	@Override
+	public void compress(TIntHashSet inUseSet) {
 		if (!compressing.compareAndSet(false, true)) {
 			throw new IllegalStateException("Compression started while compression was in progress");
 		}
@@ -700,8 +713,7 @@ public final class AtomicBlockStoreImpl implements AtomicBlockStore {
 	 * @param y the y coordinate of the dirty block
 	 * @param z the z coordinate of the dirty block
 	 */
-	@Override
-	public void markDirty(int x, int y, int z) {
+	private void markDirty(int x, int y, int z) {
 		int index = dirtyBlocks.getAndIncrement();
 		if (index < dirtyX.length) {
 			dirtyX[index] = (byte) x;

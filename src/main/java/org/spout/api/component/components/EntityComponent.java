@@ -28,7 +28,7 @@ package org.spout.api.component.components;
 
 import org.spout.api.Source;
 import org.spout.api.component.Component;
-import org.spout.api.component.ComponentHolder;
+import org.spout.api.component.ComponentOwner;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
 
@@ -37,12 +37,12 @@ import org.spout.api.event.player.PlayerInteractEvent.Action;
  */
 public abstract class EntityComponent extends Component {
 	@Override
-	public Entity getHolder() {
-		return (Entity) super.getHolder();
+	public Entity getOwner() {
+		return (Entity) super.getOwner();
 	}
 
 	@Override
-	public boolean attachTo(ComponentHolder holder) {
+	public final boolean attachTo(ComponentOwner holder) {
 		if (holder instanceof Entity) {
 			return super.attachTo(holder);
 		} else {

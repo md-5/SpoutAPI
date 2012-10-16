@@ -33,6 +33,7 @@ import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 
+import org.spout.api.component.components.BlockComponent;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
 import org.spout.api.geo.cuboid.Block;
@@ -492,5 +493,14 @@ public class BlockMaterial extends Material implements Placeable {
 
 	public void setMass(float mass) {
 		this.mass = mass;
+	}
+
+	/**
+	 * Returns a new instance of a block component for this block, or null if none exists
+	 * 
+	 * @return block component, or null
+	 */
+	public BlockComponent getBlockComponent() {
+		return null;
 	}
 }
